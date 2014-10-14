@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">btc_notifier</string>
+    <string name="app_name">XTC Notifier</string>
+
+    <string name="source">source by Coinbase</string>
 </resources>

@@ -8,6 +8,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.ui.models.CurrentPriceViewModel;
+import org.apache.commons.lang.StringEscapeUtils;
 
 public class CurrentPriceView extends FrameLayout {
 
@@ -16,9 +17,6 @@ public class CurrentPriceView extends FrameLayout {
 
     @InjectView(R.id.tvUpdatedAt)
     protected TextView tvUpdatedAt;
-
-    @InjectView(R.id.tvSource)
-    protected TextView tvSource;
 
     public CurrentPriceView(Context context) {
         this(context, null);
@@ -34,7 +32,6 @@ public class CurrentPriceView extends FrameLayout {
 
         ButterKnife.inject(this);
 
-        tvSource.setText("Coinbase");
     }
 
     public void updateDataModel(CurrentPriceViewModel currentPriceViewModel) {
@@ -43,6 +40,6 @@ public class CurrentPriceView extends FrameLayout {
     }
 
     private String localiseCurrentPrice(String rate, String symbol) {
-        return rate + " " + symbol;
+        return rate + " " + StringEscapeUtils.unescapeHtml(symbol);
     }
 }

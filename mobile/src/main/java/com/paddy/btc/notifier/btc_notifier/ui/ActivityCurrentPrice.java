@@ -9,7 +9,7 @@ import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
-import com.paddy.btc.notifier.btc_notifier.ui.models.CurrentPriceViewModel;
+import com.paddy.btc.notifier.btc_notifier.ui.factories.CurrentPriceViewModelFactory;
 import com.paddy.btc.notifier.btc_notifier.ui.views.CurrentPriceView;
 import java.util.concurrent.TimeUnit;
 import retrofit.RetrofitError;
@@ -26,9 +26,10 @@ public class ActivityCurrentPrice extends Activity {
     public static final int INITIAL_DELAY = 0;
     public static final int POLLING_INTERVAL = 1000 * 60;
     private ICoinbaseAPI coinbaseAPI;
+    private CurrentPriceViewModelFactory currentPriceViewModelFactory;
 
     @InjectView(R.id.cpCurrentPriceView)
-    CurrentPriceView cpCurrentPriceView;
+    protected CurrentPriceView cpCurrentPriceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,7 @@ public class ActivityCurrentPrice extends Activity {
         final Scheduler.Worker periodicalScheduler = Schedulers.newThread().createWorker();
         periodicalScheduler.schedulePeriodically(scheduledPriceAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
 
+        currentPriceViewModelFactory = new CurrentPriceViewModelFactory();
     }
 
 
@@ -57,16 +59,7 @@ public class ActivityCurrentPrice extends Activity {
     final Action1<GetCurrentPriceResponse> currentPriceActon = new Action1<GetCurrentPriceResponse>() {
         @Override
         public void call(GetCurrentPriceResponse response) {
-            Log.d(TAG, "at: " + response.getTime().getUpdated() +
-                    " value is: " + response.getBPIs().getBpiForUsd().getRate());
-
-
-            CurrentPriceViewModel currentPriceViewModel = new CurrentPriceViewModel();
-            currentPriceViewModel.setRate(response.getBPIs().getBpiForUsd().getRate());
-            currentPriceViewModel.setSymbol(response.getBPIs().getBpiForUsd().getSymbol());
-            currentPriceViewModel.setUpdatedAt(response.getTime().getUpdated());
-
-            cpCurrentPriceView.updateDataModel(currentPriceViewModel);
+            cpCurrentPriceView.updateDataModel(currentPriceViewModelFactory.getCurrentPriceModel(response));
         }
     };
 
@@ -74,7 +67,7 @@ public class ActivityCurrentPrice extends Activity {
         @Override
         public void call(Throwable throwable) {
             RetrofitError retrofitError = (RetrofitError) throwable;
-            Log.d(TAG, "something went wrong. " + retrofitError.getBody());
+            Log.d(TAG, "something went wrong." + retrofitError.getBody());
         }
     };
 }
