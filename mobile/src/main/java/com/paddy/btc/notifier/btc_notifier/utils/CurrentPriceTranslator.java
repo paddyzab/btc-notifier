@@ -1,37 +1,47 @@
 package com.paddy.btc.notifier.btc_notifier.utils;
 
-import android.content.Context;
+import com.paddy.btc.notifier.btc_notifier.backend.models.BPI;
+import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import java.util.Locale;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 public class CurrentPriceTranslator {
 
-    private final Context context;
+    private final Locale locale;
 
-    private final static String[] EUROZONE = {"AUT", "BEL", "CYP", "EST", "FIN", "FRA", "DEU", "GRC", "IRL",
-            "ITA", "LVA", "LTU", "LUX", "MLT", "NLD", "PRT", "SVK", "SVN", "ESP"};
+    private final static String[] EUROZONE = {"aut", "bel", "cyp", "est", "fin", "fra", "deu", "grc", "irl",
+            "ita", "lva", "ltu", "lux", "mlt", "nld", "prt", "svk", "svn", "esp"};
 
-    //British Antarctic Territory (BAT) was deleted from the ISO3166-3 vide http://www.davros.org/misc/iso3166.html#disused
-    private final static String[] POUNDZONE = {"GPB", "JEY", "GGY", "IMN", "SGS", "SHN"};
+    //British Antarctic Territory (BAT) was deleted from the ISO3166-3 http://www.davros.org/misc/iso3166.html#disused
+    private final static String[] POUNDZONE = {"gpb", "jey", "ggy", "imn", "sgs", "shn"};
 
 
-    public CurrentPriceTranslator(final Context context) {
-        this.context = context;
+    public CurrentPriceTranslator(final Locale locale) {
+        this.locale = locale;
     }
 
-    public String getFormatted() {
-        Locale locale = context.getResources().getConfiguration().locale;
-        String iso3Language = locale.getISO3Language();
+    public String getFormatted(final GetCurrentPriceResponse getCurrentPriceResponse) {
+        final String iso3Language = locale.getISO3Language();
+
+        String formattedString;
 
         if (isEuro(iso3Language)) {
-            //format with Euro
+            final BPI bpiForEur = getCurrentPriceResponse.getBPIs().getBpiForEur();
+            formattedString = bpiForEur.getRate() + escapeSymbol(bpiForEur.getSymbol());
         } else if (isPound(iso3Language)) {
-            // format with GPB
+            final BPI bpiForGpb = getCurrentPriceResponse.getBPIs().getBpiForGpb();
+            formattedString = bpiForGpb.getRate() + escapeSymbol(bpiForGpb.getSymbol());
         } else {
-            // format with USD
+            final BPI bpiForUsd = getCurrentPriceResponse.getBPIs().getBpiForUsd();
+            formattedString = escapeSymbol(bpiForUsd.getSymbol()) + bpiForUsd.getRate();
         }
 
-        return "";
+        return formattedString;
+    }
+
+    private String escapeSymbol(final String symbol) {
+        return StringEscapeUtils.unescapeHtml(symbol);
     }
 
     private boolean isEuro(String iso3Language) {
@@ -40,7 +50,6 @@ public class CurrentPriceTranslator {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -50,7 +59,6 @@ public class CurrentPriceTranslator {
                 return true;
             }
         }
-
         return false;
     }
 }

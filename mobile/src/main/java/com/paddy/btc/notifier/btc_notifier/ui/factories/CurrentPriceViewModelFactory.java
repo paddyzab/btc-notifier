@@ -1,24 +1,27 @@
 package com.paddy.btc.notifier.btc_notifier.ui.factories;
 
-import com.paddy.btc.notifier.btc_notifier.backend.models.BPI;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.backend.models.Time;
 import com.paddy.btc.notifier.btc_notifier.ui.models.CurrentPriceViewModel;
+import com.paddy.btc.notifier.btc_notifier.utils.CurrentPriceTranslator;
+import java.util.Locale;
 
 public class CurrentPriceViewModelFactory {
 
-    public CurrentPriceViewModel getCurrentPriceModel(GetCurrentPriceResponse getCurrentPriceResponse) {
+    private final CurrentPriceTranslator priceTranslator;
 
+    public CurrentPriceViewModelFactory(final Locale locale) {
+        priceTranslator = new CurrentPriceTranslator(locale);
+    }
+
+
+    public CurrentPriceViewModel getCurrentPriceModel(GetCurrentPriceResponse getCurrentPriceResponse) {
         final CurrentPriceViewModel currentPriceViewModel = new CurrentPriceViewModel();
 
-        final BPI bpiForUsd = getCurrentPriceResponse.getBPIs().getBpiForUsd();
-        final String currentRate = bpiForUsd.getRate();
-        final String getSymbol = bpiForUsd.getSymbol();
-
+        final String formattedRate = priceTranslator.getFormatted(getCurrentPriceResponse);
         final Time time = getCurrentPriceResponse.getTime();
 
-        currentPriceViewModel.setRate(currentRate);
-        currentPriceViewModel.setSymbol(getSymbol);
+        currentPriceViewModel.setFormattedRate(formattedRate);
         currentPriceViewModel.setUpdatedAt(time.getUpdated());
 
         return currentPriceViewModel;

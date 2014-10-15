@@ -11,6 +11,7 @@ import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.ui.factories.CurrentPriceViewModelFactory;
 import com.paddy.btc.notifier.btc_notifier.ui.views.CurrentPriceView;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import retrofit.RetrofitError;
 import rx.Scheduler;
@@ -21,7 +22,7 @@ import rx.schedulers.Schedulers;
 
 public class ActivityCurrentPrice extends Activity {
 
-    public static final String TAG = ActivityCurrentPrice.class.getSimpleName();
+    public static final String LOG_TAG = ActivityCurrentPrice.class.getSimpleName();
 
     public static final int INITIAL_DELAY = 0;
     public static final int POLLING_INTERVAL = 1000 * 60;
@@ -44,7 +45,8 @@ public class ActivityCurrentPrice extends Activity {
         final Scheduler.Worker periodicalScheduler = Schedulers.newThread().createWorker();
         periodicalScheduler.schedulePeriodically(scheduledPriceAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
 
-        currentPriceViewModelFactory = new CurrentPriceViewModelFactory();
+        final Locale locale = this.getResources().getConfiguration().locale;
+        currentPriceViewModelFactory = new CurrentPriceViewModelFactory(locale);
     }
 
 
@@ -67,7 +69,7 @@ public class ActivityCurrentPrice extends Activity {
         @Override
         public void call(Throwable throwable) {
             RetrofitError retrofitError = (RetrofitError) throwable;
-            Log.d(TAG, "something went wrong." + retrofitError.getBody());
+            Log.d(LOG_TAG, "something went wrong." + retrofitError.getBody());
         }
     };
 }

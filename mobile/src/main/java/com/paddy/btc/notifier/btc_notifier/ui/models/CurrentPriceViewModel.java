@@ -3,8 +3,7 @@ package com.paddy.btc.notifier.btc_notifier.ui.models;
 public class CurrentPriceViewModel {
 
     private String updatedAt;
-    private String symbol;
-    private String rate;
+    private String formattedRate;
 
     public String getUpdatedAt() {
         return updatedAt;
@@ -14,19 +13,11 @@ public class CurrentPriceViewModel {
         this.updatedAt = updatedAt;
     }
 
-    public String getSymbol() {
-        return symbol;
+    public String getFormattedRate() {
+        return formattedRate;
     }
 
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public String getRate() {
-        return rate;
-    }
-
-    public void setRate(String rate) {
-        this.rate = rate;
+    public void setFormattedRate(String formattedRate) {
+        this.formattedRate = formattedRate;
     }
 }
