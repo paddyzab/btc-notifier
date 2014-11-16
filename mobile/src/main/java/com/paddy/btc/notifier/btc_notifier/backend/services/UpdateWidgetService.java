@@ -83,16 +83,6 @@ public class UpdateWidgetService extends Service {
         }
     };
 
-    private void refreshWidgets(final float rate, final String updatedAt) {
-        remoteViews.setTextViewText(R.id.tvCurrentPrice, String.valueOf(rate));
-        remoteViews.setTextViewText(R.id.tvUpdatedAt, updatedAt);
-
-        //update is needed in order to see the changes in widgets
-        for (int widgetId : allWidgetIds) {
-            appWidgetManager.updateAppWidget(widgetId, remoteViews);
-        }
-    }
-
     final Action1<GetCurrentPriceResponse> currentPriceActon = new Action1<GetCurrentPriceResponse>() {
 
         private float rate;
@@ -103,7 +93,13 @@ public class UpdateWidgetService extends Service {
             rate = response.getBPIs().getBpiForUsd().getRate_float();
             updatedAt = response.getTime().getUpdated();
 
-            refreshWidgets(rate, updatedAt);
+            remoteViews.setTextViewText(R.id.tvCurrentPrice, String.valueOf(rate));
+            remoteViews.setTextViewText(R.id.tvUpdatedAt, updatedAt);
+
+            //update is needed in order to see the changes
+            for (int widgetId : allWidgetIds) {
+                appWidgetManager.updateAppWidget(widgetId, remoteViews);
+            }
         }
     };
 
