@@ -9,15 +9,18 @@
     <TextView android:id="@+id/tvCurrentPrice"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:textSize="@dimen/text_large"/>
+              android:textColor="@android:color/white"
+              android:textSize="@dimen/text_medium"/>
 
     <TextView android:id="@+id/tvUpdatedAt"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:textSize="@dimen/text_small"/>
+              android:textColor="@android:color/white"
+              android:textSize="@dimen/text_micro"/>
 
     <TextView android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              android:textColor="@android:color/white"
               android:text="@string/source"
-              android:textSize="@dimen/text_small"/>
+              android:textSize="@dimen/text_micro"/>
 </LinearLayout>
