@@ -87,7 +87,7 @@ public class UpdateWidgetService extends Service {
         remoteViews.setTextViewText(R.id.tvCurrentPrice, String.valueOf(rate));
         remoteViews.setTextViewText(R.id.tvUpdatedAt, updatedAt);
 
-        //update is needed in order to see the changes
+        //update is needed in order to see the changes in widgets
         for (int widgetId : allWidgetIds) {
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
@@ -102,6 +102,7 @@ public class UpdateWidgetService extends Service {
         public void call(GetCurrentPriceResponse response) {
             rate = response.getBPIs().getBpiForUsd().getRate_float();
             updatedAt = response.getTime().getUpdated();
+
             refreshWidgets(rate, updatedAt);
         }
     };
