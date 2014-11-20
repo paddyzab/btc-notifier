@@ -9,11 +9,15 @@ import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
+import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
 import com.paddy.btc.notifier.btc_notifier.ui.factories.CurrentPriceViewModelFactory;
 import com.paddy.btc.notifier.btc_notifier.ui.views.CurrentPriceView;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import retrofit.Callback;
 import retrofit.RetrofitError;
+import retrofit.client.Response;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
@@ -47,6 +51,23 @@ public class ActivityCurrentPrice extends Activity {
 
         final Locale locale = this.getResources().getConfiguration().locale;
         currentPriceViewModelFactory = new CurrentPriceViewModelFactory(locale);
+
+        // TODO: 1. create a new view (fragment?) to do this call, and allow user using and saving the Country
+        // TODO: 2. create SharePreferences persistance layer to hold this value
+        // TODO: 3. update all views accordingly when changing the Currency
+        coinbaseAPI.getSupportedCurrencies(new Callback<List<SupportedCurrency>>() {
+            @Override
+            public void success(List<SupportedCurrency> supportedCurrencies, Response response) {
+                for (SupportedCurrency currency : supportedCurrencies) {
+                    Log.d(LOG_TAG, "Supported currencies: " + currency.getCountry() + " " + currency.getCurrency());
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
     }
 
 
