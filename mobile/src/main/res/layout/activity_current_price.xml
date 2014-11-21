@@ -9,6 +9,24 @@
             android:id="@+id/cpCurrentPriceView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-        />
+            />
+
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal">
+
+        <TextView android:id="@+id/textViewSelectedCurrency"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Currently selected currency: %s"
+                  android:layout_centerVertical="true"/>
+
+        <Button android:id="@+id/buttonSelectCurrency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="change"
+                android:layout_alignParentRight="true"
+                android:gravity="center_vertical"/>
+    </RelativeLayout>
 
 </LinearLayout>

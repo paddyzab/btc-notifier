@@ -3,8 +3,10 @@ package com.paddy.btc.notifier.btc_notifier.ui;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
@@ -36,6 +38,14 @@ public class ActivityCurrentPrice extends Activity {
     @InjectView(R.id.cpCurrentPriceView)
     protected CurrentPriceView cpCurrentPriceView;
 
+    @InjectView(R.id.textViewSelectedCurrency)
+    protected TextView textViewSelectedCurrency;
+
+    @OnClick(R.id.buttonSelectCurrency)
+    void selectCurrency() {
+        Log.d(LOG_TAG, "button select clicked");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +75,7 @@ public class ActivityCurrentPrice extends Activity {
 
             @Override
             public void failure(RetrofitError error) {
-
+                Log.d(LOG_TAG, "something went wrong." + error.getBody());
             }
         });
     }
