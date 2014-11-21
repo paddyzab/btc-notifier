@@ -28,7 +28,7 @@ public class ViewCurrency extends FrameLayout {
 
     public ViewCurrency(final Context context, final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        inflate(context, R.layout.view_current_price, this);
+        inflate(context, R.layout.view_currency, this);
 
         ButterKnife.inject(this);
     }

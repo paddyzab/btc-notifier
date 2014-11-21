@@ -19,6 +19,7 @@ import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
 import com.paddy.btc.notifier.btc_notifier.ui.factories.CurrentPriceViewModelFactory;
 import com.paddy.btc.notifier.btc_notifier.ui.fragments.FragmentSelectCurrency;
 import com.paddy.btc.notifier.btc_notifier.ui.views.ViewCurrentPrice;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +40,7 @@ public class ActivityCurrentPrice extends Activity {
     public static final int POLLING_INTERVAL = 1000 * 60;
     private ICoinbaseAPI coinbaseAPI;
     private CurrentPriceViewModelFactory currentPriceViewModelFactory;
-    private List<SupportedCurrency> supportedCurrencies;
+    private List<SupportedCurrency> supportedCurrencies = new ArrayList<SupportedCurrency>();
 
     @InjectView(R.id.cpCurrentPriceView)
     protected ViewCurrentPrice cpViewCurrentPrice;
@@ -83,10 +84,8 @@ public class ActivityCurrentPrice extends Activity {
         coinbaseAPI.getSupportedCurrencies(new Callback<List<SupportedCurrency>>() {
             @Override
             public void success(final List<SupportedCurrency> supportedCurrencies, final Response response) {
-                for (SupportedCurrency currency : supportedCurrencies) {
-                    Log.d(LOG_TAG, "Supported currencies: " + currency.getCountry() + " " + currency.getCurrency());
-                    ActivityCurrentPrice.this.supportedCurrencies.addAll(supportedCurrencies);
-                }
+                ActivityCurrentPrice.this.supportedCurrencies.addAll(supportedCurrencies);
+
             }
 
             @Override
