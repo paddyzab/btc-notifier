@@ -50,8 +50,8 @@ public class ActivityCurrentPrice extends Activity {
 
     @OnClick(R.id.buttonSelectCurrency)
     void selectCurrency() {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        final Fragment prev = getFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
             ft.remove(prev);
         }
