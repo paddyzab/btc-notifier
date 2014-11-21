@@ -5,7 +5,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <com.paddy.btc.notifier.btc_notifier.ui.views.CurrentPriceView
+    <com.paddy.btc.notifier.btc_notifier.ui.views.ViewCurrentPrice
             android:id="@+id/cpCurrentPriceView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

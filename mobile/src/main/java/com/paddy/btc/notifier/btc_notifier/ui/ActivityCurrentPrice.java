@@ -1,19 +1,24 @@
 package com.paddy.btc.notifier.btc_notifier.ui;
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import com.google.common.collect.Lists;
 import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
 import com.paddy.btc.notifier.btc_notifier.ui.factories.CurrentPriceViewModelFactory;
-import com.paddy.btc.notifier.btc_notifier.ui.views.CurrentPriceView;
+import com.paddy.btc.notifier.btc_notifier.ui.fragments.FragmentSelectCurrency;
+import com.paddy.btc.notifier.btc_notifier.ui.views.ViewCurrentPrice;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -34,16 +39,27 @@ public class ActivityCurrentPrice extends Activity {
     public static final int POLLING_INTERVAL = 1000 * 60;
     private ICoinbaseAPI coinbaseAPI;
     private CurrentPriceViewModelFactory currentPriceViewModelFactory;
+    private List<SupportedCurrency> supportedCurrencies;
 
     @InjectView(R.id.cpCurrentPriceView)
-    protected CurrentPriceView cpCurrentPriceView;
+    protected ViewCurrentPrice cpViewCurrentPrice;
 
     @InjectView(R.id.textViewSelectedCurrency)
     protected TextView textViewSelectedCurrency;
 
     @OnClick(R.id.buttonSelectCurrency)
     void selectCurrency() {
-        Log.d(LOG_TAG, "button select clicked");
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        if (!supportedCurrencies.isEmpty()) {
+            DialogFragment newFragment = FragmentSelectCurrency.newInstance(Lists.newArrayList(supportedCurrencies));
+            newFragment.show(ft, "dialog");
+        }
     }
 
     @Override
@@ -62,14 +78,14 @@ public class ActivityCurrentPrice extends Activity {
         final Locale locale = this.getResources().getConfiguration().locale;
         currentPriceViewModelFactory = new CurrentPriceViewModelFactory(locale);
 
-        // TODO: 1. create a new view (fragment?) to do this call, and allow user using and saving the Country
         // TODO: 2. create SharePreferences persistance layer to hold this value
         // TODO: 3. update all views accordingly when changing the Currency
         coinbaseAPI.getSupportedCurrencies(new Callback<List<SupportedCurrency>>() {
             @Override
-            public void success(List<SupportedCurrency> supportedCurrencies, Response response) {
+            public void success(final List<SupportedCurrency> supportedCurrencies, final Response response) {
                 for (SupportedCurrency currency : supportedCurrencies) {
                     Log.d(LOG_TAG, "Supported currencies: " + currency.getCountry() + " " + currency.getCurrency());
+                    ActivityCurrentPrice.this.supportedCurrencies.addAll(supportedCurrencies);
                 }
             }
 
@@ -92,7 +108,7 @@ public class ActivityCurrentPrice extends Activity {
     final Action1<GetCurrentPriceResponse> currentPriceActon = new Action1<GetCurrentPriceResponse>() {
         @Override
         public void call(GetCurrentPriceResponse response) {
-            cpCurrentPriceView.updateDataModel(currentPriceViewModelFactory.getCurrentPriceModel(response));
+            cpViewCurrentPrice.updateDataModel(currentPriceViewModelFactory.getCurrentPriceModel(response));
         }
     };
 
