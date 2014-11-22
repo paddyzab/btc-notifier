@@ -16,8 +16,6 @@ public class StorageHelper {
 
     private final Context context;
 
-
-
     public StorageHelper(final Context context) {
         this.context = context;
     }

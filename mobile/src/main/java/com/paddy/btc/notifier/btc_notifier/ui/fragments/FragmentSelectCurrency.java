@@ -5,20 +5,25 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
+import com.paddy.btc.notifier.btc_notifier.storage.UserDataStorage;
 import com.paddy.btc.notifier.btc_notifier.ui.adapters.AdapterSelectCurrency;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentSelectCurrency extends DialogFragment {
 
+    private final static String LOG_TAG = FragmentSelectCurrency.class.getSimpleName();
+
     private final static String LIST_KEY = "currencies";
     private List<SupportedCurrency> supportedCurrencies;
     private AdapterSelectCurrency adapterSelectCurrency;
+    private UserDataStorage userDataStorage;
 
     @InjectView(R.id.listViewSelectCurrency)
     protected ListView selectedCurrency;
@@ -38,6 +43,8 @@ public class FragmentSelectCurrency extends DialogFragment {
         super.onCreate(savedInstanceState);
         supportedCurrencies = getArguments().getParcelableArrayList(LIST_KEY);
         adapterSelectCurrency = new AdapterSelectCurrency(supportedCurrencies);
+
+        userDataStorage = new UserDataStorage(getActivity());
     }
 
     @Override
@@ -51,14 +58,19 @@ public class FragmentSelectCurrency extends DialogFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         selectedCurrency.setAdapter(adapterSelectCurrency);
+
+        selectedCurrency.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final SupportedCurrency clickedSupportedCurrency = adapterSelectCurrency.getItem(position);
+                final String currency = clickedSupportedCurrency.getCurrency();
+
+                userDataStorage.write(currency);
+
+                FragmentSelectCurrency.this.dismiss();
+            }
+        });
     }
 
-    public void setData(List<SupportedCurrency> data) {
-        for (SupportedCurrency currency : data) {
-            if (!supportedCurrencies.contains(currency)) {
-                supportedCurrencies.add(currency);
-            }
-        }
-    }
 
 }

@@ -2,7 +2,6 @@ package com.paddy.btc.notifier.btc_notifier.ui.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import butterknife.ButterKnife;
@@ -33,14 +32,12 @@ public class ViewCurrency extends FrameLayout {
         ButterKnife.inject(this);
     }
 
-    public View displayCurrencyData(final SupportedCurrency supportedCurrency) {
+    public void displayCurrencyData(final SupportedCurrency supportedCurrency) {
 
         String country = supportedCurrency.getCountry();
         final String currency = supportedCurrency.getCurrency();
 
         textViewCountry.setText(country);
         textViewCurrency.setText(currency);
-
-        return this;
     }
 }

@@ -32,13 +32,15 @@ public class AdapterSelectCurrency extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public ViewCurrency getView(int position, View convertView, ViewGroup parent) {
 
         ViewCurrency currencyView = (ViewCurrency) convertView;
 
         if (currencyView == null) {
             currencyView = new ViewCurrency(parent.getContext());
         }
-        return currencyView.displayCurrencyData(getItem(position));
+        currencyView.displayCurrencyData(getItem(position));
+
+        return currencyView;
     }
 }

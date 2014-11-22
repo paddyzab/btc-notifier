@@ -95,7 +95,6 @@ public class ActivityCurrentPrice extends Activity {
         });
     }
 
-
     final Action0 scheduledPriceAction = new Action0() {
         @Override
         public void call() {
