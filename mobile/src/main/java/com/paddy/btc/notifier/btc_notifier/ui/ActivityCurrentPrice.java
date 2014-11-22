@@ -16,6 +16,7 @@ import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
+import com.paddy.btc.notifier.btc_notifier.storage.UserDataStorage;
 import com.paddy.btc.notifier.btc_notifier.ui.factories.CurrentPriceViewModelFactory;
 import com.paddy.btc.notifier.btc_notifier.ui.fragments.FragmentSelectCurrency;
 import com.paddy.btc.notifier.btc_notifier.ui.views.ViewCurrentPrice;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang.StringUtils;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -41,6 +43,8 @@ public class ActivityCurrentPrice extends Activity {
     private ICoinbaseAPI coinbaseAPI;
     private CurrentPriceViewModelFactory currentPriceViewModelFactory;
     private List<SupportedCurrency> supportedCurrencies = new ArrayList<SupportedCurrency>();
+
+    private UserDataStorage userDataStorage;
 
     @InjectView(R.id.cpCurrentPriceView)
     protected ViewCurrentPrice cpViewCurrentPrice;
@@ -78,6 +82,7 @@ public class ActivityCurrentPrice extends Activity {
 
         final Locale locale = this.getResources().getConfiguration().locale;
         currentPriceViewModelFactory = new CurrentPriceViewModelFactory(locale);
+        userDataStorage = new UserDataStorage(this);
 
         // TODO: 2. create SharePreferences persistance layer to hold this value
         // TODO: 3. update all views accordingly when changing the Currency
@@ -93,6 +98,16 @@ public class ActivityCurrentPrice extends Activity {
                 Log.d(LOG_TAG, "something went wrong." + error.getBody());
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        String selectedCurrency = userDataStorage.get(getString(R.string.currency_key));
+        if (!StringUtils.isEmpty(selectedCurrency)) {
+            textViewSelectedCurrency.setText("currently selected currency " + selectedCurrency);
+        }
     }
 
     final Action0 scheduledPriceAction = new Action0() {
