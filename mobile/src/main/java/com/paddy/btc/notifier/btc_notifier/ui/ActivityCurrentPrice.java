@@ -24,11 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.StringUtils;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import rx.Observable;
 import rx.Scheduler;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
@@ -45,6 +46,7 @@ public class ActivityCurrentPrice extends Activity {
     private List<SupportedCurrency> supportedCurrencies = new ArrayList<SupportedCurrency>();
 
     private UserDataStorage userDataStorage;
+    private Subscription currencyChangesSubscription;
 
     @InjectView(R.id.cpCurrentPriceView)
     protected ViewCurrentPrice cpViewCurrentPrice;
@@ -84,7 +86,6 @@ public class ActivityCurrentPrice extends Activity {
         currentPriceViewModelFactory = new CurrentPriceViewModelFactory(locale);
         userDataStorage = new UserDataStorage(this);
 
-        // TODO: 2. create SharePreferences persistance layer to hold this value
         // TODO: 3. update all views accordingly when changing the Currency
         coinbaseAPI.getSupportedCurrencies(new Callback<List<SupportedCurrency>>() {
             @Override
@@ -98,34 +99,40 @@ public class ActivityCurrentPrice extends Activity {
                 Log.d(LOG_TAG, "something went wrong." + error.getBody());
             }
         });
+
+        currencyChangesSubscription = Observable.just(userDataStorage.get(getString(R.string.currency_key))).subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(updateCurrency);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        String selectedCurrency = userDataStorage.get(getString(R.string.currency_key));
-        if (!StringUtils.isEmpty(selectedCurrency)) {
-            textViewSelectedCurrency.setText("currently selected currency " + selectedCurrency);
-        }
+    protected void onDestroy() {
+        super.onDestroy();
+        currencyChangesSubscription.unsubscribe();
     }
 
     final Action0 scheduledPriceAction = new Action0() {
         @Override
         public void call() {
             coinbaseAPI.getCurrentBpi().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(currentPriceActon, errorAction);
+                    .subscribe(updatePrice, logError);
         }
     };
 
-    final Action1<GetCurrentPriceResponse> currentPriceActon = new Action1<GetCurrentPriceResponse>() {
+    final Action1<String> updateCurrency = new Action1<String>() {
+        @Override
+        public void call(String newCurrency) {
+            textViewSelectedCurrency.setText("currently selected currency " + newCurrency);
+        }
+    };
+
+    final Action1<GetCurrentPriceResponse> updatePrice = new Action1<GetCurrentPriceResponse>() {
         @Override
         public void call(GetCurrentPriceResponse response) {
             cpViewCurrentPrice.updateDataModel(currentPriceViewModelFactory.getCurrentPriceModel(response));
         }
     };
 
-    final Action1<Throwable> errorAction = new Action1<Throwable>() {
+    final Action1<Throwable> logError = new Action1<Throwable>() {
         @Override
         public void call(Throwable throwable) {
             RetrofitError retrofitError = (RetrofitError) throwable;
