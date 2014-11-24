@@ -11,12 +11,16 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.google.common.collect.Lists;
+import com.halfbit.tinybus.Bus;
+import com.halfbit.tinybus.Subscribe;
+import com.halfbit.tinybus.TinyBus;
 import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
 import com.paddy.btc.notifier.btc_notifier.storage.UserDataStorage;
+import com.paddy.btc.notifier.btc_notifier.storage.events.CurrencyChangedEvent;
 import com.paddy.btc.notifier.btc_notifier.ui.factories.CurrentPriceViewModelFactory;
 import com.paddy.btc.notifier.btc_notifier.ui.fragments.FragmentSelectCurrency;
 import com.paddy.btc.notifier.btc_notifier.ui.views.ViewCurrentPrice;
@@ -53,6 +57,8 @@ public class ActivityCurrentPrice extends Activity {
 
     @InjectView(R.id.textViewSelectedCurrency)
     protected TextView textViewSelectedCurrency;
+
+    private Bus bus;
 
     @OnClick(R.id.buttonSelectCurrency)
     void selectCurrency() {
@@ -100,6 +106,23 @@ public class ActivityCurrentPrice extends Activity {
             }
         });
 
+        bus = TinyBus.from(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        bus.register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        bus.unregister(this);
+    }
+
+    @Subscribe
+    public void onCurrencyChanged(final CurrencyChangedEvent evnt) {
         currencyChangesSubscription = Observable.just(userDataStorage.get(getString(R.string.currency_key))).subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(updateCurrency);
     }

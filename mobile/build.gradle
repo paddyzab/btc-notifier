@@ -71,6 +71,7 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.0.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
     compile 'commons-lang:commons-lang:2.3'
+    compile 'de.halfbit:tinybus:2.0.+'
 
     // test dependencies
     androidTestCompile 'junit:junit:4.11'
