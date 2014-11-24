@@ -14,13 +14,10 @@ public class UserDataStorage implements KeyValueStorage {
     private final Bus bus;
     private final Context context;
 
-    private CurrencyChangedEvent currencyChangedEvent;
-
     public UserDataStorage(final Context context) {
         preferences = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE);
         this.context = context;
         bus = TinyBus.from(context);
-        currencyChangedEvent = new CurrencyChangedEvent();
     }
 
 
@@ -30,7 +27,7 @@ public class UserDataStorage implements KeyValueStorage {
         editor.putString(context.getString(R.string.currency_key), newCurrency);
         editor.apply();
 
-        bus.post(currencyChangedEvent);
+        bus.post(CurrencyChangedEvent.INSTANCE);
     }
 
     @Override

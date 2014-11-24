@@ -91,7 +91,8 @@ public class ActivityCurrentPrice extends Activity {
         final Locale locale = this.getResources().getConfiguration().locale;
         currentPriceViewModelFactory = new CurrentPriceViewModelFactory(locale);
         userDataStorage = new UserDataStorage(this);
-
+        // TODO: 1. create provider for all backend related data
+        // TODO: 2. initial state of the currency from locale
         // TODO: 3. update all views accordingly when changing the Currency
         coinbaseAPI.getSupportedCurrencies(new Callback<List<SupportedCurrency>>() {
             @Override
