@@ -28,12 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang.StringUtils;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import rx.Observable;
 import rx.Scheduler;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
@@ -48,9 +47,7 @@ public class ActivityCurrentPrice extends Activity {
     private ICoinbaseAPI coinbaseAPI;
     private CurrentPriceViewModelFactory currentPriceViewModelFactory;
     private List<SupportedCurrency> supportedCurrencies = new ArrayList<SupportedCurrency>();
-
     private UserDataStorage userDataStorage;
-    private Subscription currencyChangesSubscription;
 
     @InjectView(R.id.cpCurrentPriceView)
     protected ViewCurrentPrice cpViewCurrentPrice;
@@ -108,6 +105,12 @@ public class ActivityCurrentPrice extends Activity {
         });
 
         bus = TinyBus.from(this);
+
+        if (!StringUtils.isEmpty(userDataStorage.get(getString(R.string.currency_key)))) {
+            textViewSelectedCurrency.setText(userDataStorage.get(getString(R.string.currency_key)));
+        } else {
+            // resolve currency from Locale.
+        }
     }
 
     @Override
@@ -124,14 +127,7 @@ public class ActivityCurrentPrice extends Activity {
 
     @Subscribe
     public void onCurrencyChanged(final CurrencyChangedEvent evnt) {
-        currencyChangesSubscription = Observable.just(userDataStorage.get(getString(R.string.currency_key))).subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(updateCurrency);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        currencyChangesSubscription.unsubscribe();
+        textViewSelectedCurrency.setText(userDataStorage.get(getString(R.string.currency_key)));
     }
 
     final Action0 scheduledPriceAction = new Action0() {
@@ -139,13 +135,6 @@ public class ActivityCurrentPrice extends Activity {
         public void call() {
             coinbaseAPI.getCurrentBpi().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                     .subscribe(updatePrice, logError);
-        }
-    };
-
-    final Action1<String> updateCurrency = new Action1<String>() {
-        @Override
-        public void call(String newCurrency) {
-            textViewSelectedCurrency.setText("currently selected currency " + newCurrency);
         }
     };
 
