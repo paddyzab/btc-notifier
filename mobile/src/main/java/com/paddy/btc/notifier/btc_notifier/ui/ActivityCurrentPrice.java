@@ -19,7 +19,7 @@ import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
-import com.paddy.btc.notifier.btc_notifier.storage.UserDataStorage;
+import com.paddy.btc.notifier.btc_notifier.storage.CurrencyProvider;
 import com.paddy.btc.notifier.btc_notifier.storage.events.CurrencyChangedEvent;
 import com.paddy.btc.notifier.btc_notifier.ui.factories.CurrentPriceViewModelFactory;
 import com.paddy.btc.notifier.btc_notifier.ui.fragments.FragmentSelectCurrency;
@@ -47,7 +47,7 @@ public class ActivityCurrentPrice extends Activity {
     private ICoinbaseAPI coinbaseAPI;
     private CurrentPriceViewModelFactory currentPriceViewModelFactory;
     private List<SupportedCurrency> supportedCurrencies = new ArrayList<SupportedCurrency>();
-    private UserDataStorage userDataStorage;
+    private CurrencyProvider currencyProvider;
 
     @InjectView(R.id.cpCurrentPriceView)
     protected ViewCurrentPrice cpViewCurrentPrice;
@@ -87,7 +87,7 @@ public class ActivityCurrentPrice extends Activity {
 
         final Locale locale = this.getResources().getConfiguration().locale;
         currentPriceViewModelFactory = new CurrentPriceViewModelFactory(locale);
-        userDataStorage = new UserDataStorage(this);
+        currencyProvider = new CurrencyProvider(this);
         // TODO: 1. create provider for all backend related data
         // TODO: 2. initial state of the currency from locale
         // TODO: 3. update all views accordingly when changing the Currency
@@ -106,8 +106,8 @@ public class ActivityCurrentPrice extends Activity {
 
         bus = TinyBus.from(this);
 
-        if (!StringUtils.isEmpty(userDataStorage.get(getString(R.string.currency_key)))) {
-            textViewSelectedCurrency.setText(userDataStorage.get(getString(R.string.currency_key)));
+        if (!StringUtils.isEmpty(currencyProvider.getCurrentCurrency())) {
+            textViewSelectedCurrency.setText(currencyProvider.getCurrentCurrency());
         } else {
             // resolve currency from Locale.
         }
@@ -126,8 +126,8 @@ public class ActivityCurrentPrice extends Activity {
     }
 
     @Subscribe
-    public void onCurrencyChanged(final CurrencyChangedEvent evnt) {
-        textViewSelectedCurrency.setText(userDataStorage.get(getString(R.string.currency_key)));
+    public void onCurrencyChanged(final CurrencyChangedEvent event) {
+        textViewSelectedCurrency.setText(currencyProvider.getCurrentCurrency());
     }
 
     final Action0 scheduledPriceAction = new Action0() {
