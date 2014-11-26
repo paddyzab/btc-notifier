@@ -18,8 +18,6 @@ import java.util.List;
 
 public class FragmentSelectCurrency extends DialogFragment {
 
-    private final static String LOG_TAG = FragmentSelectCurrency.class.getSimpleName();
-
     private final static String LIST_KEY = "currencies";
     private List<SupportedCurrency> supportedCurrencies;
     private AdapterSelectCurrency adapterSelectCurrency;
@@ -62,8 +60,8 @@ public class FragmentSelectCurrency extends DialogFragment {
         selectedCurrency.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final SupportedCurrency clickedSupportedCurrency = adapterSelectCurrency.getItem(position);
-                final String currency = clickedSupportedCurrency.getCurrency();
+                final SupportedCurrency selectedCurrency = adapterSelectCurrency.getItem(position);
+                final String currency = selectedCurrency.getCurrency();
 
                 userDataStorage.write(currency);
 
