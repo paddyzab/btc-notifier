@@ -1,5 +1,6 @@
 package com.paddy.btc.notifier.btc_notifier.ui.factories;
 
+import android.content.Context;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.backend.models.Time;
 import com.paddy.btc.notifier.btc_notifier.ui.models.CurrentPriceViewModel;
@@ -10,7 +11,8 @@ public class CurrentPriceViewModelFactory {
 
     private final CurrentPriceTranslator priceTranslator;
 
-    public CurrentPriceViewModelFactory(final Locale locale) {
+    public CurrentPriceViewModelFactory(final Context context) {
+        final Locale locale = context.getResources().getConfiguration().locale;
         priceTranslator = new CurrentPriceTranslator(locale);
     }
 

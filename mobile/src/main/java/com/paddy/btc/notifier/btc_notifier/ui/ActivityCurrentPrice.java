@@ -26,9 +26,7 @@ import com.paddy.btc.notifier.btc_notifier.ui.fragments.FragmentSelectCurrency;
 import com.paddy.btc.notifier.btc_notifier.ui.views.ViewCurrentPrice;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.StringUtils;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -81,15 +79,13 @@ public class ActivityCurrentPrice extends Activity {
 
         final ApiProvider provider = new ApiProvider();
         coinbaseAPI = provider.getCoinbaseAPI();
+        currentPriceViewModelFactory = new CurrentPriceViewModelFactory(this);
+        currencyProvider = new CurrencyProvider(this);
 
         final Scheduler.Worker periodicalScheduler = Schedulers.newThread().createWorker();
         periodicalScheduler.schedulePeriodically(scheduledPriceAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
 
-        final Locale locale = this.getResources().getConfiguration().locale;
-        currentPriceViewModelFactory = new CurrentPriceViewModelFactory(locale);
-        currencyProvider = new CurrencyProvider(this);
         // TODO: 1. create provider for all backend related data
-        // TODO: 2. initial state of the currency from locale
         // TODO: 3. update all views accordingly when changing the Currency
         coinbaseAPI.getSupportedCurrencies(new Callback<List<SupportedCurrency>>() {
             @Override
@@ -106,11 +102,7 @@ public class ActivityCurrentPrice extends Activity {
 
         bus = TinyBus.from(this);
 
-        if (!StringUtils.isEmpty(currencyProvider.getCurrentCurrency())) {
-            textViewSelectedCurrency.setText(currencyProvider.getCurrentCurrency());
-        } else {
-            // resolve currency from Locale.
-        }
+        textViewSelectedCurrency.setText(currencyProvider.getCurrentCurrency());
     }
 
     @Override
