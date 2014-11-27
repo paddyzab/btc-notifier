@@ -53,6 +53,7 @@ public class ActivityCurrentPrice extends Activity {
     @InjectView(R.id.textViewSelectedCurrency)
     protected TextView textViewSelectedCurrency;
 
+    private Scheduler.Worker periodicalScheduler;
     private Bus bus;
 
     @OnClick(R.id.buttonSelectCurrency)
@@ -82,7 +83,7 @@ public class ActivityCurrentPrice extends Activity {
         currentPriceViewModelFactory = new CurrentPriceViewModelFactory(this);
         currencyProvider = new CurrencyProvider(this);
 
-        final Scheduler.Worker periodicalScheduler = Schedulers.newThread().createWorker();
+        periodicalScheduler = Schedulers.newThread().createWorker();
         periodicalScheduler.schedulePeriodically(scheduledPriceAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
 
         // TODO: 1. create provider for all backend related data
@@ -120,6 +121,11 @@ public class ActivityCurrentPrice extends Activity {
     @Subscribe
     public void onCurrencyChanged(final CurrencyChangedEvent event) {
         textViewSelectedCurrency.setText(currencyProvider.getCurrentCurrency());
+        periodicalScheduler.unsubscribe();
+
+        periodicalScheduler = Schedulers.newThread().createWorker();
+        periodicalScheduler.schedulePeriodically(customCurrencyAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
+
     }
 
     final Action0 scheduledPriceAction = new Action0() {
@@ -127,6 +133,15 @@ public class ActivityCurrentPrice extends Activity {
         public void call() {
             coinbaseAPI.getCurrentBpi().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                     .subscribe(updatePrice, logError);
+        }
+    };
+
+    final Action0 customCurrencyAction = new Action0() {
+
+        @Override
+        public void call() {
+            coinbaseAPI.getCurrentPriceResponseForISOCode(currencyProvider.getCurrentCurrency()).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread()).subscribe(updatePrice, logError);
         }
     };
 
