@@ -27,7 +27,7 @@
                        android:resource="@xml/btc_appwidget_notifier" />
         </receiver>
 
-        <service android:name=".backend.services.UpdateWidgetService"></service>
+        <service android:name=".backend.services.UpdateWidgetService"/>
 
     </application>
 </manifest>

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@android:color/transparent">
+              android:paddingLeft="4dp"
+              android:paddingStart="4dp"
+              android:paddingEnd="4dp"
+              android:background="@android:drawable/screen_background_dark_transparent">
 
     <TextView android:id="@+id/tvCurrentPrice"
               android:layout_width="match_parent"
@@ -15,12 +18,15 @@
     <TextView android:id="@+id/tvUpdatedAt"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:textColor="@android:color/white"
+              android:textColor="@android:color/darker_gray"
+              android:layout_above="@+id/tvSource"
               android:textSize="@dimen/text_micro"/>
 
-    <TextView android:layout_width="match_parent"
+    <TextView android:id="@+id/tvSource"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:textColor="@android:color/white"
+              android:textColor="@android:color/darker_gray"
               android:text="@string/source"
-              android:textSize="@dimen/text_micro"/>
-</LinearLayout>
+              android:textSize="@dimen/text_micro"
+              android:layout_alignParentBottom="true"/>
+</RelativeLayout>
