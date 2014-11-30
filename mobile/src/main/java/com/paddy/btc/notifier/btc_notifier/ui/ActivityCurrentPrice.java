@@ -15,9 +15,11 @@ import com.halfbit.tinybus.Bus;
 import com.halfbit.tinybus.Subscribe;
 import com.halfbit.tinybus.TinyBus;
 import com.paddy.btc.notifier.btc_notifier.R;
+import com.paddy.btc.notifier.btc_notifier.backend.actions.LogError;
+import com.paddy.btc.notifier.btc_notifier.backend.actions.ScheduledPriceAction;
+import com.paddy.btc.notifier.btc_notifier.backend.actions.UpdatePriceAction;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
-import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
 import com.paddy.btc.notifier.btc_notifier.storage.CurrencyProvider;
 import com.paddy.btc.notifier.btc_notifier.storage.events.CurrencyChangedEvent;
@@ -31,9 +33,6 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class ActivityCurrentPrice extends Activity {
@@ -46,6 +45,9 @@ public class ActivityCurrentPrice extends Activity {
     private CurrentPriceViewModelFactory currentPriceViewModelFactory;
     private List<SupportedCurrency> supportedCurrencies = new ArrayList<SupportedCurrency>();
     private CurrencyProvider currencyProvider;
+    private UpdatePriceAction updatePriceAction;
+    private LogError logError;
+    private ScheduledPriceAction scheduledPriceAction;
 
     @InjectView(R.id.cpCurrentPriceView)
     protected ViewCurrentPrice cpViewCurrentPrice;
@@ -82,6 +84,9 @@ public class ActivityCurrentPrice extends Activity {
         coinbaseAPI = provider.getCoinbaseAPI();
         currentPriceViewModelFactory = new CurrentPriceViewModelFactory(this);
         currencyProvider = new CurrencyProvider(this);
+        updatePriceAction = new UpdatePriceAction(cpViewCurrentPrice, currentPriceViewModelFactory);
+        logError = new LogError();
+        scheduledPriceAction = new ScheduledPriceAction(coinbaseAPI, updatePriceAction, logError);
 
         periodicalScheduler = Schedulers.newThread().createWorker();
         periodicalScheduler.schedulePeriodically(scheduledPriceAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
@@ -124,39 +129,9 @@ public class ActivityCurrentPrice extends Activity {
         periodicalScheduler.unsubscribe();
 
         periodicalScheduler = Schedulers.newThread().createWorker();
-        periodicalScheduler.schedulePeriodically(customCurrencyAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
+        //TODO prepare correct mapping and merge UpdatePriceAction here
+        Log.d(LOG_TAG, "we would use the correct currency here, but author needs to finish his research");
+        //periodicalScheduler.schedulePeriodically(customCurrencyAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
 
     }
-
-    final Action0 scheduledPriceAction = new Action0() {
-        @Override
-        public void call() {
-            coinbaseAPI.getCurrentBpi().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(updatePrice, logError);
-        }
-    };
-
-    final Action0 customCurrencyAction = new Action0() {
-
-        @Override
-        public void call() {
-            coinbaseAPI.getCurrentPriceResponseForISOCode(currencyProvider.getCurrentCurrency()).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread()).subscribe(updatePrice, logError);
-        }
-    };
-
-    final Action1<GetCurrentPriceResponse> updatePrice = new Action1<GetCurrentPriceResponse>() {
-        @Override
-        public void call(GetCurrentPriceResponse response) {
-            cpViewCurrentPrice.updateDataModel(currentPriceViewModelFactory.getCurrentPriceModel(response));
-        }
-    };
-
-    final Action1<Throwable> logError = new Action1<Throwable>() {
-        @Override
-        public void call(Throwable throwable) {
-            RetrofitError retrofitError = (RetrofitError) throwable;
-            Log.d(LOG_TAG, "something went wrong." + retrofitError.getBody());
-        }
-    };
 }
