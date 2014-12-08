@@ -41,7 +41,6 @@ android {
 
         debug {
             signingConfig signingConfigs.develop
-            runProguard false
             applicationIdSuffix '.debug'
             buildConfigField STRING, API_LOG_LEVEL, quotate("FULL")
             buildConfigField STRING, CONSUMER_API_BASE_URL, quotate("https://api.coindesk.com/v1/bpi/")
