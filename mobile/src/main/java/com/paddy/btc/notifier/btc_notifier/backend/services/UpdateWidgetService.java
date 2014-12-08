@@ -95,12 +95,12 @@ public class UpdateWidgetService extends Service {
 
     final Action1<GetCurrentPriceResponse> currentPriceActon = new Action1<GetCurrentPriceResponse>() {
 
-        private float rate;
+        private float rate = 0;
         private String updatedAt;
 
         @Override
         public void call(GetCurrentPriceResponse response) {
-            rate = response.getBPIs().getBpiForUsd().getRate_float();
+            //rate = response.getBPIs().getBpiForUsd().getRate_float();
             updatedAt = response.getTime().getUpdated();
 
             refreshWidgets(rate, updatedAt);

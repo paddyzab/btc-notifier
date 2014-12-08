@@ -20,6 +20,7 @@ import com.paddy.btc.notifier.btc_notifier.backend.actions.ScheduledPriceAction;
 import com.paddy.btc.notifier.btc_notifier.backend.actions.UpdatePriceAction;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
+import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
 import com.paddy.btc.notifier.btc_notifier.storage.CurrencyProvider;
 import com.paddy.btc.notifier.btc_notifier.storage.events.CurrencyChangedEvent;
@@ -33,6 +34,9 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class ActivityCurrentPrice extends Activity {
@@ -82,8 +86,8 @@ public class ActivityCurrentPrice extends Activity {
 
         final ApiProvider provider = new ApiProvider();
         coinbaseAPI = provider.getCoinbaseAPI();
-        currentPriceViewModelFactory = new CurrentPriceViewModelFactory(this);
         currencyProvider = new CurrencyProvider(this);
+        currentPriceViewModelFactory = new CurrentPriceViewModelFactory(currencyProvider);
         updatePriceAction = new UpdatePriceAction(cpViewCurrentPrice, currentPriceViewModelFactory);
         logError = new LogError();
         scheduledPriceAction = new ScheduledPriceAction(coinbaseAPI, updatePriceAction, logError);
@@ -129,9 +133,23 @@ public class ActivityCurrentPrice extends Activity {
         periodicalScheduler.unsubscribe();
 
         periodicalScheduler = Schedulers.newThread().createWorker();
-        //TODO prepare correct mapping and merge UpdatePriceAction here
-        Log.d(LOG_TAG, "we would use the correct currency here, but author needs to finish his research");
-        //periodicalScheduler.schedulePeriodically(customCurrencyAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
-
+        periodicalScheduler.schedulePeriodically(customCurrencyAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
     }
+
+
+    final Action0 customCurrencyAction = new Action0() {
+
+        @Override
+        public void call() {
+            coinbaseAPI.getCurrentPriceResponseForISOCode(currencyProvider.getCurrentCurrency()).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread()).subscribe(updatePrice, logError);
+        }
+    };
+
+    final Action1<GetCurrentPriceResponse> updatePrice = new Action1<GetCurrentPriceResponse>() {
+        @Override
+        public void call(GetCurrentPriceResponse response) {
+            cpViewCurrentPrice.updateDataModel(currentPriceViewModelFactory.getCurrentPriceModel(response));
+        }
+    };
 }
