@@ -15,8 +15,8 @@ public class UserDataStorage implements KeyValueStorage {
     private final Context context;
 
     public UserDataStorage(final Context context) {
-        preferences = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE);
         this.context = context;
+        preferences = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE);
         bus = TinyBus.from(context);
     }
 

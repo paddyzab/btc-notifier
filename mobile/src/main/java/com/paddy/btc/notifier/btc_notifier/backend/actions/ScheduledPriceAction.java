@@ -21,7 +21,6 @@ public class ScheduledPriceAction implements Action0 {
 
     @Override
     public void call() {
-
         coinbaseAPI.getCurrentBpi().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(updatePrice, logError);
     }

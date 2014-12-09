@@ -17,7 +17,7 @@ public class UpdatePriceAction implements Action1<GetCurrentPriceResponse> {
     }
 
     @Override
-    public void call(GetCurrentPriceResponse response) {
+    public void call(final GetCurrentPriceResponse response) {
         cpViewCurrentPrice.updateDataModel(currentPriceViewModelFactory.getCurrentPriceModel(response));
     }
 }

@@ -15,12 +15,11 @@ import com.halfbit.tinybus.Bus;
 import com.halfbit.tinybus.Subscribe;
 import com.halfbit.tinybus.TinyBus;
 import com.paddy.btc.notifier.btc_notifier.R;
+import com.paddy.btc.notifier.btc_notifier.backend.actions.CustomCurrencyAction;
 import com.paddy.btc.notifier.btc_notifier.backend.actions.LogError;
-import com.paddy.btc.notifier.btc_notifier.backend.actions.ScheduledPriceAction;
 import com.paddy.btc.notifier.btc_notifier.backend.actions.UpdatePriceAction;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
-import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
 import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
 import com.paddy.btc.notifier.btc_notifier.storage.CurrencyProvider;
 import com.paddy.btc.notifier.btc_notifier.storage.events.CurrencyChangedEvent;
@@ -34,9 +33,6 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class ActivityCurrentPrice extends Activity {
@@ -45,13 +41,9 @@ public class ActivityCurrentPrice extends Activity {
 
     public static final int INITIAL_DELAY = 0;
     public static final int POLLING_INTERVAL = 1000 * 60;
-    private ICoinbaseAPI coinbaseAPI;
-    private CurrentPriceViewModelFactory currentPriceViewModelFactory;
     private List<SupportedCurrency> supportedCurrencies = new ArrayList<SupportedCurrency>();
     private CurrencyProvider currencyProvider;
-    private UpdatePriceAction updatePriceAction;
-    private LogError logError;
-    private ScheduledPriceAction scheduledPriceAction;
+    private CustomCurrencyAction customCurrencyAction;
 
     @InjectView(R.id.cpCurrentPriceView)
     protected ViewCurrentPrice cpViewCurrentPrice;
@@ -82,20 +74,19 @@ public class ActivityCurrentPrice extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_price);
 
+        final ApiProvider provider = new ApiProvider();
+        final ICoinbaseAPI coinbaseAPI = provider.getCoinbaseAPI();
+        final CurrentPriceViewModelFactory currentPriceViewModelFactory = new CurrentPriceViewModelFactory(currencyProvider);
+        final UpdatePriceAction updatePrice = new UpdatePriceAction(cpViewCurrentPrice, currentPriceViewModelFactory);
+        final LogError logError = new LogError();
+
         ButterKnife.inject(this);
 
-        final ApiProvider provider = new ApiProvider();
-        coinbaseAPI = provider.getCoinbaseAPI();
         currencyProvider = new CurrencyProvider(this);
-        currentPriceViewModelFactory = new CurrentPriceViewModelFactory(currencyProvider);
-        updatePriceAction = new UpdatePriceAction(cpViewCurrentPrice, currentPriceViewModelFactory);
-        logError = new LogError();
-        scheduledPriceAction = new ScheduledPriceAction(coinbaseAPI, updatePriceAction, logError);
-
+        customCurrencyAction = new CustomCurrencyAction(currencyProvider, coinbaseAPI, updatePrice, logError);
         periodicalScheduler = Schedulers.newThread().createWorker();
-        periodicalScheduler.schedulePeriodically(scheduledPriceAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
+        periodicalScheduler.schedulePeriodically(customCurrencyAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
 
-        // TODO: 1. create provider for all backend related data
         // TODO: 3. update all views accordingly when changing the Currency
         coinbaseAPI.getSupportedCurrencies(new Callback<List<SupportedCurrency>>() {
             @Override
@@ -135,21 +126,4 @@ public class ActivityCurrentPrice extends Activity {
         periodicalScheduler = Schedulers.newThread().createWorker();
         periodicalScheduler.schedulePeriodically(customCurrencyAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
     }
-
-
-    final Action0 customCurrencyAction = new Action0() {
-
-        @Override
-        public void call() {
-            coinbaseAPI.getCurrentPriceResponseForISOCode(currencyProvider.getCurrentCurrency()).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread()).subscribe(updatePrice, logError);
-        }
-    };
-
-    final Action1<GetCurrentPriceResponse> updatePrice = new Action1<GetCurrentPriceResponse>() {
-        @Override
-        public void call(GetCurrentPriceResponse response) {
-            cpViewCurrentPrice.updateDataModel(currentPriceViewModelFactory.getCurrentPriceModel(response));
-        }
-    };
 }
