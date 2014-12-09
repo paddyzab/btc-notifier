@@ -2,4 +2,6 @@
     <string name="app_name">BTC Notifier</string>
 
     <string name="source">source by Coinbase</string>
+
+    <string name="currency_key">key_currency</string>
 </resources>

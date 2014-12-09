@@ -1,13 +1,14 @@
 package com.paddy.btc.notifier.btc_notifier.backend.models;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.Map;
 
 public class GetCurrentPriceResponse {
 
     private Time time;
     private String disclaimer;
     @SerializedName("bpi")
-    private BPIs BPIs;
+    private Map<String, BPI> BPIs;
 
     public String getDisclaimer() {
         return disclaimer;
@@ -25,11 +26,11 @@ public class GetCurrentPriceResponse {
         this.time = time;
     }
 
-    public BPIs getBPIs() {
+    public Map<String, BPI>  getBPIs() {
         return BPIs;
     }
 
-    public void setBPIs(BPIs BPIs) {
+    public void setBPIs(Map<String, BPI> BPIs) {
         this.BPIs = BPIs;
     }
 }

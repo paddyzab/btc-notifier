@@ -9,7 +9,7 @@ import butterknife.InjectView;
 import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.ui.models.CurrentPriceViewModel;
 
-public class CurrentPriceView extends FrameLayout {
+public class ViewCurrentPrice extends FrameLayout {
 
     @InjectView(R.id.tvCurrentPrice)
     protected TextView tvCurrentPrice;
@@ -17,15 +17,15 @@ public class CurrentPriceView extends FrameLayout {
     @InjectView(R.id.tvUpdatedAt)
     protected TextView tvUpdatedAt;
 
-    public CurrentPriceView(Context context) {
+    public ViewCurrentPrice(Context context) {
         this(context, null);
     }
 
-    public CurrentPriceView(Context context, AttributeSet attrs) {
+    public ViewCurrentPrice(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public CurrentPriceView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewCurrentPrice(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         inflate(context, R.layout.view_current_price, this);
 

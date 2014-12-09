@@ -41,7 +41,6 @@ android {
 
         debug {
             signingConfig signingConfigs.develop
-            runProguard false
             applicationIdSuffix '.debug'
             buildConfigField STRING, API_LOG_LEVEL, quotate("FULL")
             buildConfigField STRING, CONSUMER_API_BASE_URL, quotate("https://api.coindesk.com/v1/bpi/")
@@ -71,6 +70,7 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.0.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
     compile 'commons-lang:commons-lang:2.3'
+    compile 'de.halfbit:tinybus:2.0.+'
 
     // test dependencies
     androidTestCompile 'junit:junit:4.11'
