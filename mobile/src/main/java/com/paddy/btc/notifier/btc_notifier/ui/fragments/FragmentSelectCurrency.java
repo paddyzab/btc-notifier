@@ -11,6 +11,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.backend.models.SupportedCurrency;
+import com.paddy.btc.notifier.btc_notifier.storage.KeyValueStorage;
 import com.paddy.btc.notifier.btc_notifier.storage.UserDataStorage;
 import com.paddy.btc.notifier.btc_notifier.ui.adapters.AdapterSelectCurrency;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class FragmentSelectCurrency extends DialogFragment {
     private final static String LIST_KEY = "currencies";
     private List<SupportedCurrency> supportedCurrencies;
     private AdapterSelectCurrency adapterSelectCurrency;
-    private UserDataStorage userDataStorage;
+    private KeyValueStorage userDataStorage;
 
     @InjectView(R.id.listViewSelectCurrency)
     protected ListView selectedCurrency;
