@@ -73,16 +73,15 @@ public class ActivityCurrentPrice extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_price);
+        ButterKnife.inject(this);
 
         final ApiProvider provider = new ApiProvider();
         final ICoinbaseAPI coinbaseAPI = provider.getCoinbaseAPI();
+        currencyProvider = new CurrencyProvider(this);
         final CurrentPriceViewModelFactory currentPriceViewModelFactory = new CurrentPriceViewModelFactory(currencyProvider);
         final UpdatePriceAction updatePrice = new UpdatePriceAction(cpViewCurrentPrice, currentPriceViewModelFactory);
         final LogError logError = new LogError();
 
-        ButterKnife.inject(this);
-
-        currencyProvider = new CurrencyProvider(this);
         customCurrencyAction = new CustomCurrencyAction(currencyProvider, coinbaseAPI, updatePrice, logError);
         periodicalScheduler = Schedulers.newThread().createWorker();
         periodicalScheduler.schedulePeriodically(customCurrencyAction, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);

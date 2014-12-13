@@ -1,17 +1,14 @@
 package com.paddy.btc.notifier.btc_notifier.backend.services;
 
-import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
-import com.paddy.btc.notifier.btc_notifier.R;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ApiProvider;
 import com.paddy.btc.notifier.btc_notifier.backend.api.ICoinbaseAPI;
 import com.paddy.btc.notifier.btc_notifier.backend.models.GetCurrentPriceResponse;
-import com.paddy.btc.notifier.btc_notifier.utils.PriceWidgetProvider;
 import java.util.concurrent.TimeUnit;
 import retrofit.RetrofitError;
 import rx.Scheduler;
@@ -33,30 +30,30 @@ public class UpdateWidgetService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        appWidgetManager = AppWidgetManager.getInstance(this
-                .getApplicationContext());
-
-        allWidgetIds = intent
-                .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-
-        for (int widgetId : allWidgetIds) {
-            remoteViews = new RemoteViews(this
-                    .getApplicationContext().getPackageName(),
-                    R.layout.widget_layout);
-
-            // Register an onClickListener
-            final Intent clickIntent = new Intent(this.getApplicationContext(),
-                    PriceWidgetProvider.class);
-
-            clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
-                    allWidgetIds);
-
-            final PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, clickIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            remoteViews.setOnClickPendingIntent(R.id.tvCurrentPrice, pendingIntent);
-            appWidgetManager.updateAppWidget(widgetId, remoteViews);
-        }
+//        appWidgetManager = AppWidgetManager.getInstance(this
+//                .getApplicationContext());
+//
+//        allWidgetIds = intent
+//                .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+//
+//        for (int widgetId : allWidgetIds) {
+//            remoteViews = new RemoteViews(this
+//                    .getApplicationContext().getPackageName(),
+//                    R.layout.widget_layout);
+//
+//            // Register an onClickListener
+//            final Intent clickIntent = new Intent(this.getApplicationContext(),
+//                    PriceWidgetProvider.class);
+//
+//            clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+//            clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
+//                    allWidgetIds);
+//
+//            final PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, clickIntent,
+//                    PendingIntent.FLAG_UPDATE_CURRENT);
+//            remoteViews.setOnClickPendingIntent(R.id.tvCurrentPrice, pendingIntent);
+//            appWidgetManager.updateAppWidget(widgetId, remoteViews);
+//        }
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -84,13 +81,13 @@ public class UpdateWidgetService extends Service {
     };
 
     private void refreshWidgets(final float rate, final String updatedAt) {
-        remoteViews.setTextViewText(R.id.tvCurrentPrice, String.valueOf(rate));
-        remoteViews.setTextViewText(R.id.tvUpdatedAt, updatedAt);
-
-        //update is needed in order to see the changes in widgets
-        for (int widgetId : allWidgetIds) {
-            appWidgetManager.updateAppWidget(widgetId, remoteViews);
-        }
+//        remoteViews.setTextViewText(R.id.tvCurrentPrice, String.valueOf(rate));
+//        remoteViews.setTextViewText(R.id.tvUpdatedAt, updatedAt);
+//
+//        //update is needed in order to see the changes in widgets
+//        for (int widgetId : allWidgetIds) {
+//            appWidgetManager.updateAppWidget(widgetId, remoteViews);
+//        }
     }
 
     final Action1<GetCurrentPriceResponse> currentPriceActon = new Action1<GetCurrentPriceResponse>() {

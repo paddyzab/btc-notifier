@@ -3,6 +3,7 @@ package com.paddy.btc.notifier.btc_notifier.storage;
 
 import android.content.Context;
 import com.paddy.btc.notifier.btc_notifier.R;
+import java.util.Currency;
 import java.util.Locale;
 import org.apache.commons.lang.StringUtils;
 
@@ -21,12 +22,14 @@ public class CurrencyProvider {
         if (!StringUtils.isEmpty(userDataStorage.get(context.getString(R.string.currency_key)))) {
             return userDataStorage.get(context.getString(R.string.currency_key));
         } else {
-            return resolveFromLocale();
+            return resolveCurrencyCodeFromLocale();
         }
     }
 
-    private String resolveFromLocale() {
+    private String resolveCurrencyCodeFromLocale() {
         final Locale locale = context.getResources().getConfiguration().locale;
-        return locale.getISO3Country();
+        final Currency currency = Currency.getInstance(locale);
+
+        return currency.getCurrencyCode();
     }
 }
